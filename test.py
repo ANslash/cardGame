@@ -9,22 +9,38 @@ from card import *
 
 # Initialize each instance of unique card object
 
-card7 = Troll_card() #Creature("Troll", 3, 3, 3, 'img\Troll_card.png', True)
-card8 = Spell("Shock", 1, 'img\shock_card.png', 2)
-card9 = Lion_card() #Creature("Lion", 1, 2, 1, 'img\lion_card.png', False)
-card10 = Bridge_card()  # Creature(name= "Bridge", cost= 1, power= 1, toughness= 7, image= ['img\Bridge_card_tapped.png', 'img\Bridge_card.png'], readeyToAct= False)
-card11 = Spell("Divination", 3, 'img\divination_card.png', 3)
-card12 = Creature("Wall", 1, 4, 2, ['img\wall_card_tapped.png', 'img\wall_card.png'], True)
+card1 = Troll_card() #Creature("Troll", 3, 3, 3, 'img\Troll_card.png', True)
+card2 = Spell("Shock", 1, 'img\shock_card.png', 2)
+card3 = Lion_card() #Creature("Lion", 1, 2, 1, 'img\lion_card.png', False)
+card4 = Bridge_card()  # Creature(name= "Bridge", cost= 1, power= 1, toughness= 7, image= ['img\Bridge_card_tapped.png', 'img\Bridge_card.png'], readeyToAct= False)
+card5 = Spell("Divination", 3, 'img\divination_card.png', 3)
+card6 = Creature("Wall", 1, 4, 2, ['img\wall_card_tapped.png', 'img\wall_card.png'], True)
+
+card7 = Lion_card()
+card8 = Lion_card()
+card9 = Lion_card()
+card10 = Lion_card()
+card11 = Lion_card()
+card12 = Lion_card()
+card13 = Lion_card()
+card14 = Lion_card()
 
 # Initialize each instance of unique deck objcect
-deck1 = Deck([card7, card8, card9, card10, card11, card12])
+deck1 = Deck([card1, card2, card3, card4, card5, card6])
+deck2 = Deck([card7, card8, card9, card10, card11, card12, card13, card14])
 
 # Create the two players
-p1_name = sg.popup_get_text('Enter name of Player 1')
-p2_name = sg.popup_get_text('Enter name of Player 2')
+p1_name = ""
+p2_name = ""
+while p1_name == p2_name:
+    p1_name = sg.popup_get_text('Enter name of Player 1')
+    p2_name = sg.popup_get_text('Enter name of Player 2')
+    if p1_name == p2_name:
+        sg.popup("Both player names are the same.\n"
+                 "Please choose unique names.")
 
 playerAlpha = Player(p1_name, deck1)
-playerBeta = Player(p2_name, deck1)
+playerBeta = Player(p2_name, deck2)
 
 # Initialize the game
 thisGame = Game(playerAlpha, playerBeta)
@@ -54,27 +70,42 @@ def damagePlayer(amount, player, game):
         if new_game_choise == "Yes":
             game.newGame()
 
+def makePlayerBoard(key):
+    board_line = []
+    for i in range(4):
+        board_line.append(sg.Image(filename= 'img\Blank_card.png', key= f'{key}_{i}'))
+    board_line.append(sg.Button(button_text= 'Graveyard', key= f'{key}_graveyard', font=('Helvetica', 10)))
+
+    return board_line
+
 # Define the game board
 layout = [
-    [sg.Text(thisGame.players[0].getName(), key='P1', font=('Helvetica', 10)),
-     sg.Text(f'{thisGame.players[0].getLifeTotal()}', key='P1_life', font=('Helvetica', 10)),
-     sg.Text(f'Turn: {thisGame.getTurnNumber()}', key='turn', font=('Helvetica', 10)),
-     sg.Text(thisGame.players[1].getName(), key='P2', font=('Helvetica', 10)),
-     sg.Text(f'{thisGame.players[1].getLifeTotal()}', key='P2_life', font=('Helvetica', 10))],
-    [sg.Text('Enemey Board', key='other_board', font=('Helvetica', 10)),
-     sg.Button('Graveyard', key='other_graveyard', font=('Helvetica', 10))],
-    [sg.Button('Action', key='act', font=('Helvetica', 10)),
-     sg.Text('Player Board', key='this_board', font=('Helvetica', 10)),
-     sg.Button('Graveyard', key='this_graveyard', font=('Helvetica', 10))],
+    [sg.Text(thisGame.players[0].getName(), key='P1', font=('Helvetica', 10)), sg.Text(f'{thisGame.players[0].getLifeTotal()}', key='P1_life', font=('Helvetica', 10)), sg.Text(f'Turn: {thisGame.getTurnNumber()}', key='turn', font=('Helvetica', 10)), sg.Text(thisGame.players[1].getName(), key='P2', font=('Helvetica', 10)), sg.Text(f'{thisGame.players[1].getLifeTotal()}', key='P2_life', font=('Helvetica', 10))],
+    makePlayerBoard("other"),
+    #[sg.Text('Enemey Board', key='other_board', font=('Helvetica', 10)), sg.Button('Graveyard', key='other_graveyard', font=('Helvetica', 10))],
+    [sg.Button('Action', key='act', font=('Helvetica', 10))] + makePlayerBoard('this'),
+    #[sg.Button('Action', key='act', font=('Helvetica', 10)), sg.Text('Player Board', key='this_board', font=('Helvetica', 10)), sg.Button('Graveyard', key='this_graveyard', font=('Helvetica', 10))],
     [sg.Text(f"{thisGame.getActivePlayer().getCardsInHand()}", key='hand', font=('Helvetica', 10))],
-    [sg.Text(f'Active Player: {thisGame.activePlayer.getName()}', key='active', font=('Helvetica', 10)),
-     sg.Text(f'Mana: {thisGame.activePlayer.getMana()}', key='mana', font=('Helvetica', 10)),
-     sg.Button('Play card', key='play', font=('Helvetica', 10)),
-     sg.Button('Pass Turn', key='pass', font=('Helvetica', 10)),
-     sg.Button('New game', key='new_game', font=('Helvetica', 10))],
+    [sg.Text(f'Active Player: {thisGame.activePlayer.getName()}', key='active', font=('Helvetica', 10)), sg.Text(f'Mana: {thisGame.activePlayer.getMana()}', key='mana', font=('Helvetica', 10)), sg.Button('Play card', key='play', font=('Helvetica', 10)), sg.Button('Pass Turn', key='pass', font=('Helvetica', 10)), sg.Button('New game', key='new_game', font=('Helvetica', 10))],
 ]
 
-window = sg.Window('Card game', layout, size=(1600, 800))
+window = sg.Window('Card game', layout, size=(1000, 600))
+
+def updatePlayerBoard(player):
+    activePlayer = (player == thisGame.getActivePlayer())
+    for i in range(4):
+        if activePlayer:
+            if len(player.getBoard()) > i:
+                window[f"this_{i}"].update(player.getBoard()[i].getImage())
+            else:
+                window[f"this_{i}"].update('img\Blank_card.png')
+        else:
+            if len(player.getBoard()) > i:
+                window[f"other_{i}"].update(player.getBoard()[i].getImage())
+            else:
+                window[f"other_{i}"].update('img\Blank_card.png')
+
+
 
 while True:
     # Show GUI
@@ -166,8 +197,8 @@ while True:
 
     # Update display information
     window['hand'].update(f"{thisGame.activePlayer.getCardsInHand()}")
-    window['other_board'].update(f"{thisGame.inactivePlayer.getBoard()}")
-    window['this_board'].update(f"{thisGame.activePlayer.getBoard()}")
+    updatePlayerBoard(thisGame.getInactivePlayer())
+    updatePlayerBoard(thisGame.getActivePlayer())
     window['mana'].update(f"Mana: {thisGame.activePlayer.getMana()}")
     window['turn'].update(f"Turn: {thisGame.getTurnNumber()}")
     window['active'].update(f"Active Player: {thisGame.activePlayer.getName()}")
