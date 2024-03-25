@@ -152,7 +152,7 @@ class Shock_card(Spell):
     Cast this spell:
     Deals 2 (base)damage to any target
     """
-    def cast(self, game):
+    def castingSpell(self, game):
         legal_targets = []
         for player in game.getPlayers():
             legal_targets.append(player)
@@ -174,6 +174,16 @@ class Shock_card(Spell):
 
         elif hasattr(target, 'lifeTotal'):          # Check if target is a player
             game.damagePlayer(self.spellDamage, target)
+
+class Divination_card(Spell):
+    def __init__(self):
+        super().__init__(name= "Divination", cost= 1, image= 'img\divination_card.png')
+
+    """
+    Draws the caster 2 cards when played
+    """
+    def castingSpell(self, game):
+        game.getActivePlayer().drawCards(2)
 
 
 
