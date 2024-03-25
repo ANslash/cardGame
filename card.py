@@ -23,11 +23,19 @@ class Permanent(Card):
         self.subTypes = subTypes
         self.isTapped = isTapped
         self.image = image
+        self.controller = None
 
     def __str__(self):
-        return (f"Type: {self.cardType}\n"
+        return (f"Type: {self.subTypes}\n"
                 f"Cost: {self.cost}\n"
-                f"Text: {self.name}\n")
+                f"Text: {self.name}\n"
+                f"Controller: {self.controller}")
+
+    def getController(self):
+        return self.controller
+
+    def setController(self, controller):
+        self.controller = controller
 
     def getSubTypes(self):
         return self.subTypes
@@ -82,19 +90,14 @@ class Creature(Permanent):
 
 class Spell(Card):
 
-    def __init__(self, name, cost, image, spellPower):
+    def __init__(self, name, cost, image):
         super().__init__(cardType= "Spell", cost= cost, name= name)
-        self.spellPower = spellPower
         self.image = image
 
     def __str__(self):
-        return (f"Type: {self.cardType}\n"
+        return (f"Type: {self.name}\n"
                 f"Cost: {self.cost}\n"
-                f"Text: {self.name}\n"
-                f"SpellPower: {self.spellPower}")
-
-    def getSpellPower(self):
-        return self.spellPower
+                f"Text: {self.cardType}")
 
     def getImage(self):
         return self.image
@@ -116,7 +119,7 @@ class Bridge_card(Creature):
     def frenzyTrigger(self):
         self.frenzied = True
         super().setStats(newPower= self.toughness, newToughness= self.power)
-        self.defender = False
+        #self.defender = False
 
     def isFrenzied(self):
         return self.frenzied
@@ -133,8 +136,46 @@ class Lion_card(Creature):
     Triggers when this card is put into the graveyard from the battlefield:
     Creates a 1/1 Kitten creature token.
     """
-    def triggerDeathRattle(self, player):
+    def triggerDeathRattle(self, game):
         kittyToken = Creature(name= "Kitten", cost= 0, power= 1, toughness= 1, readyToAct= False, image= ['img\kitten_token_tapped.png', 'img\kitten_token.png'])
-        player.getBoard().append(kittyToken)
+        for player in game.getPlayers():
+            if player == self.controller:
+                player.getBoard().append(kittyToken)
+
+
+class Shock_card(Spell):
+    def __init__(self):
+        super().__init__(name= "Shock", cost= 1, image= 'img\shock_card.png')
+        self.spellDamage = 2
+
+    """
+    Cast this spell:
+    Deals 2 (base)damage to any target
+    """
+    def cast(self, game):
+        legal_targets = []
+        for player in game.getPlayers():
+            legal_targets.append(player)
+            legal_targets += player.getBoard()
+        target = legal_targets[game.chooseCard(legal_targets, f'Deal {self.spellDamage} to any target')]
+        if hasattr(target, 'toughness'):            # Check if tartet is a Creature
+            target.takeDamage(self.spellDamage)
+            if target.getToughness() <= 0:          # Check if target is destroyed
+                dead_creature = target
+                target.setController(None)
+                for combatant in range(len(target.getController().getBoard())):
+                    if target.getController().getBoard()[combatant] == target:
+                        dead_creature.getController().getGraveyard().addToGraveyard(target)
+                        dead_creature.getController().getBoard().pop(combatant)
+                if hasattr(target, 'deathRattle'):  # Check if target has triggered ability on death
+                    dead_creature.triggerDeathRattle(game)
+            elif hasattr(target, 'frenzied') and not target.isFrenzied():   # Check if target has a taking damage
+                target.frenzyTrigger()
+
+        elif hasattr(target, 'lifeTotal'):          # Check if target is a player
+            game.damagePlayer(self.spellDamage, target)
+
+
+
 
 

@@ -6,10 +6,11 @@ class Player:
         self.graveyard: Graveyard = Graveyard()
         self.hand: list = []
         self.board: list = []
-        self.startLife: int = 10
+        self.startLife: int = 100
         self.lifeTotal: int = self.startLife
         self.mana: int = 0
         self.maxMana: int = 0
+        self.playingGame = None
 
     def __str__(self):
         return f"{self.name}: {self.deck}"
@@ -70,15 +71,17 @@ class Player:
         self.board.pop(index)
 
     def playCardFromHand(self, index):
-        if self.getMana() >= self.hand[index].getCost():
+        if self.getMana() >= self.hand[index].getCost() and len(self.board) < 4:
             self.useMana(self.hand[index].getCost())
             print(f"--Casting--\n{self.hand[index]}")
             if self.hand[index].getCardType() == "Permanent":
+                self.hand[index].setController(self)
                 self.board.append(self.hand[index])
                 self.hand.pop(index)
                 print("Goes to the board!")
             else:
                 """self.drawCards(self.hand[index].getSpellPower())"""
+                self.hand[index].cast(self.getGame())
                 self.graveyard.addToGraveyard(self.hand[index])
                 self.hand.pop(index)
                 print("Goes to the graveyard!")
@@ -107,3 +110,9 @@ class Player:
         print("Card discarded")
         self.graveyard.addToGraveyard(self.hand[index])
         self.hand.pop(index)
+
+    def getGame(self):
+        return self.playingGame
+
+    def setGame(self, game):
+        self.playingGame = game

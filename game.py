@@ -1,3 +1,5 @@
+import PySimpleGUI as sg
+
 class Game:
     def __init__(self, playerAlpha, playerBeta):
         self.players: list = [playerAlpha, playerBeta]
@@ -34,8 +36,8 @@ class Game:
         # Checking if player ineeds to discard to handsize
         while len(self.activePlayer.getCardsInHand()) > 3:
             print(self.activePlayer.getCardsInHand())
-            choise = int(input("Please discard a card (index): "))
-            self.getActivePlayer().discard(choise)
+            choise = self.chooseCard(self.activePlayer.getCardsInHand(), 'Discard a card')
+            self.activePlayer.discard(choise)
 
         # Increase turn number
         self.turnNumber += 1
@@ -86,3 +88,22 @@ class Game:
 
             # Draw two cards at the beginning of play
             player.drawCards(2)
+
+    def chooseCard(self, cards, title):
+        layout = [[]]
+        for i in range(len(cards)):
+            if hasattr(cards[i], 'image'):
+                layout[0].append(sg.Button(image_filename=cards[i].getImage(), key= i))
+            elif hasattr(cards[i], 'name'):
+                layout[0].append(sg.Button(button_text= cards[i].getName(), key= i))
+        window = sg.Window(title=title, layout=layout, size=(1600, 800))
+        event = window.read(close=True)
+        return event[0]
+
+    def damagePlayer(self, amount, player):
+        player.changeLifeTotal(-amount)
+        if player.getLifeTotal() <= 0:
+            new_game_choise = sg.popup_yes_no(f"{player.getName()}'s life total hit {player.getLifeTotal()}\n"
+                                              f"Want to start a new game?")
+            if new_game_choise == "Yes":
+                self.newGame()
