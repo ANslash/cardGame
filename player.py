@@ -78,10 +78,12 @@ class Player:
                 self.hand[index].setController(self)
                 self.board.append(self.hand[index])
                 self.hand.pop(index)
+                if hasattr(self.board[-1], 'enterTrig'):
+                    self.board[-1].triggerETB(self.getGame())
                 print("Goes to the board!")
             else:
                 """self.drawCards(self.hand[index].getSpellPower())"""
-                self.hand[index].cast(self.getGame())
+                self.hand[index].castingSpell(self.getGame())
                 self.graveyard.addToGraveyard(self.hand[index])
                 self.hand.pop(index)
                 print("Goes to the graveyard!")

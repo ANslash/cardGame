@@ -13,17 +13,17 @@ card1 = Troll_card() #Creature("Troll", 3, 3, 3, 'img\Troll_card.png', True)
 card2 = Shock_card() #Spell("Shock", 1, 'img\shock_card.png')
 card3 = Lion_card() #Creature("Lion", 1, 2, 1, 'img\lion_card.png', False)
 card4 = Bridge_card()  # Creature(name= "Bridge", cost= 1, power= 1, toughness= 7, image= ['img\Bridge_card_tapped.png', 'img\Bridge_card.png'], readeyToAct= False)
-card5 = Spell("Divination", 3, 'img\divination_card.png')
-card6 = Creature("Wall", 1, 4, 2, ['img\wall_card_tapped.png', 'img\wall_card.png'], True)
+card5 = Divination_card() #Spell("Divination", 3, 'img\divination_card.png')
+card6 = Wall_card() #Creature("Wall", 1, 4, 2, ['img\wall_card.png', 'img\wall_card_tapped.png'], True)
 
 card7 = Lion_card()
 card8 = Lion_card()
 card9 = Lion_card()
-card10 = Lion_card()
-card11 = Shock_card()
-card12 = Shock_card()
-card13 = Shock_card()
-card14 = Shock_card()
+card10 = Divination_card()
+card11 = Divination_card()
+card12 = Wall_card()
+card13 = Wall_card()
+card14 = Wall_card()
 
 # Initialize each instance of unique deck objcect
 deck1 = Deck([card1, card2, card3, card4, card5, card6])
@@ -167,12 +167,12 @@ while True:
             attacker_event = thisGame.chooseCard(thisGame.getActivePlayer().getBoard(), 'Attack with Creature')                         # Display possible attackers on GUI and use button choise (chooseCard funtion from game.py module)
             if attacker_event != None:
                 attacker = thisGame.getActivePlayer().getBoard()[attacker_event]
-                if attacker.isReadyToAct() and not attacker.getIsTapped():                                                          # Check if tapped or summoning sick
+                if attacker.isReadyToAct() and attacker.getIsUntapped():                                                          # Check if tapped or summoning sick
                     attacker.tap()                                                                                                  # Tap cards as part of action
                     block_with_card = None                                                                                          # init block index
                     if len(thisGame.getInactivePlayer().getBoard()) > 0:                                                            # Check if there is any possible blockers
                         block_with_card = thisGame.chooseCard(thisGame.getInactivePlayer().getBoard(), 'Defend with Creature')          # Display blockers on GUI and use button choise (chooseCard funtion from game.py module)
-                        if block_with_card != None and not thisGame.getInactivePlayer().getBoard()[block_with_card].getIsTapped():  # Check if valid defender (untapped)
+                        if block_with_card != None and thisGame.getInactivePlayer().getBoard()[block_with_card].getIsUntapped():  # Check if valid defender (untapped)
                             defender = thisGame.getInactivePlayer().getBoard()[block_with_card]
 
                             # Creatures deals damage to each other
